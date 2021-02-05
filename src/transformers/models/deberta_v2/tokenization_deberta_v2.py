@@ -14,14 +14,12 @@
 # limitations under the License.
 """ Tokenization class for model DeBERTa."""
 
-from typing import Optional, Tuple
-
 import os
 import unicodedata
+from typing import Optional, Tuple
 
 import sentencepiece as sp
 import six
-
 
 from ...tokenization_utils import PreTrainedTokenizer
 
@@ -68,6 +66,7 @@ PRETRAINED_INIT_CONFIGURATION = {
 }
 
 VOCAB_FILES_NAMES = {"vocab_file": "spm.model"}
+
 
 class DebertaV2Tokenizer(PreTrainedTokenizer):
     r"""

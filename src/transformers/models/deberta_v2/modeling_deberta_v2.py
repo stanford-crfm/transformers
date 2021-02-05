@@ -22,8 +22,7 @@ import numpy as np
 import torch
 from packaging import version
 from torch import _softmax_backward_data, nn
-from torch.nn import CrossEntropyLoss
-from torch.nn import LayerNorm
+from torch.nn import CrossEntropyLoss, LayerNorm
 
 from ...activations import ACT2FN
 from ...file_utils import add_code_sample_docstrings, add_start_docstrings, add_start_docstrings_to_model_forward
@@ -58,6 +57,7 @@ DEBERTA_PRETRAINED_MODEL_ARCHIVE_LIST = [
 ]
 
 
+# Copied from transformers.models.deberta.modeling_deberta.ContextPooler
 class ContextPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -80,6 +80,7 @@ class ContextPooler(nn.Module):
         return self.config.hidden_size
 
 
+# Copied from transformers.models.deberta.modeling_deberta.XSoftmax
 class XSoftmax(torch.autograd.Function):
     """
     Masked Softmax which is optimized for saving memory
@@ -120,6 +121,7 @@ class XSoftmax(torch.autograd.Function):
         return inputGrad, None, None
 
 
+# Copied from transformers.models.deberta.modeling_deberta.DropoutContext
 class DropoutContext(object):
     def __init__(self):
         self.dropout = 0
@@ -128,6 +130,7 @@ class DropoutContext(object):
         self.reuse_mask = True
 
 
+# Copied from transformers.models.deberta.modeling_deberta.get_mask
 def get_mask(input, local_context):
     if not isinstance(local_context, DropoutContext):
         dropout = local_context
@@ -150,6 +153,7 @@ def get_mask(input, local_context):
     return mask, dropout
 
 
+# Copied from transformers.models.deberta.modeling_deberta.XDropout
 class XDropout(torch.autograd.Function):
     """Optimized dropout function to save computation and memory by using mask operation instead of multiplication."""
 
@@ -172,6 +176,7 @@ class XDropout(torch.autograd.Function):
             return grad_output, None
 
 
+# Copied from transformers.models.deberta.modeling_deberta.StableDropout
 class StableDropout(torch.nn.Module):
     """
     Optimized dropout module for stabilizing the training
@@ -255,6 +260,7 @@ def MaskedLayerNorm(layerNorm, input, mask=None):
     return output * mask
 
 
+# Copied from transformers.models.deberta.modeling_deberta.DebertaSelfOutput with DebertaLayerNorm->LayerNorm
 class DebertaV2SelfOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -269,6 +275,7 @@ class DebertaV2SelfOutput(nn.Module):
         return hidden_states
 
 
+# Copied from transformers.models.deberta.modeling_deberta.DebertaAttention with Deberta->DebertaV2
 class DebertaV2Attention(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -321,9 +328,10 @@ class DebertaV2Intermediate(nn.Module):
         return hidden_states
 
 
+# Copied from transformers.models.deberta.modeling_deberta.DebertaOutput with DebertaLayerNorm->LayerNorm
 class DebertaV2Output(nn.Module):
     def __init__(self, config):
-        super(DebertaV2Output, self).__init__()
+        super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = LayerNorm(config.hidden_size, config.layer_norm_eps)
         self.dropout = StableDropout(config.hidden_dropout_prob)
@@ -336,9 +344,10 @@ class DebertaV2Output(nn.Module):
         return hidden_states
 
 
+# Copied from transformers.models.deberta.modeling_deberta.DebertaLayer with Deberta->DebertaV2
 class DebertaV2Layer(nn.Module):
     def __init__(self, config):
-        super(DebertaV2Layer, self).__init__()
+        super().__init__()
         self.attention = DebertaV2Attention(config)
         self.intermediate = DebertaV2Intermediate(config)
         self.output = DebertaV2Output(config)

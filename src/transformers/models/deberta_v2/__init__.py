@@ -22,35 +22,35 @@ from ...file_utils import _BaseLazyModule, is_torch_available
 
 
 _import_structure = {
-    "configuration_deberta": ["DEBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP", "DebertaConfig"],
-    "tokenization_deberta": ["DebertaTokenizer"],
+    "configuration_deberta_v2": ["DEBERTA_V2_PRETRAINED_CONFIG_ARCHIVE_MAP", "DebertaV2Config"],
+    "tokenization_deberta_v2": ["DebertaV2Tokenizer"],
 }
 
 if is_torch_available():
-    _import_structure["modeling_deberta"] = [
+    _import_structure["modeling_deberta_v2"] = [
         "DEBERTA_PRETRAINED_MODEL_ARCHIVE_LIST",
-        "DebertaForSequenceClassification",
-        "DebertaModel",
-        "DebertaForMaskedLM",
-        "DebertaPreTrainedModel",
-        "DebertaForTokenClassification",
-        "DebertaForQuestionAnswering",
+        "DebertaV2ForSequenceClassification",
+        "DebertaV2Model",
+        "DebertaV2ForMaskedLM",
+        "DebertaV2PreTrainedModel",
+        "DebertaV2ForTokenClassification",
+        "DebertaV2ForQuestionAnswering",
     ]
 
 
 if TYPE_CHECKING:
-    from .configuration_deberta_v2 import DEBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP, DebertaConfig
-    from .tokenization_deberta_v2 import DebertaTokenizer
+    from .configuration_deberta_v2 import DEBERTA_V2_PRETRAINED_CONFIG_ARCHIVE_MAP, DebertaV2Config
+    from .tokenization_deberta_v2 import DebertaV2Tokenizer
 
     if is_torch_available():
         from .modeling_deberta_v2 import (
             DEBERTA_PRETRAINED_MODEL_ARCHIVE_LIST,
-            DebertaForMaskedLM,
-            DebertaForQuestionAnswering,
-            DebertaForSequenceClassification,
-            DebertaForTokenClassification,
-            DebertaModel,
-            DebertaPreTrainedModel,
+            DebertaV2ForMaskedLM,
+            DebertaV2ForQuestionAnswering,
+            DebertaV2ForSequenceClassification,
+            DebertaV2ForTokenClassification,
+            DebertaV2Model,
+            DebertaV2PreTrainedModel,
         )
 
 else:
