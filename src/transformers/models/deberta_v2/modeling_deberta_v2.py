@@ -16,7 +16,6 @@
 
 import math
 from collections.abc import Sequence
-from functools import lru_cache
 
 import numpy as np
 import torch
@@ -525,7 +524,6 @@ def make_log_bucket_position(relative_pos, bucket_size, max_position):
     return bucket_pos
 
 
-@lru_cache(maxsize=128)
 def build_relative_position(query_size, key_size, bucket_size=-1, max_position=-1):
     """
     Build relative position according to the query and key
@@ -556,16 +554,19 @@ def build_relative_position(query_size, key_size, bucket_size=-1, max_position=-
 
 
 @torch.jit.script
+# Copied from transformers.models.deberta.modeling_deberta.c2p_dynamic_expand
 def c2p_dynamic_expand(c2p_pos, query_layer, relative_pos):
     return c2p_pos.expand([query_layer.size(0), query_layer.size(1), query_layer.size(2), relative_pos.size(-1)])
 
 
 @torch.jit.script
+# Copied from transformers.models.deberta.modeling_deberta.p2c_dynamic_expand
 def p2c_dynamic_expand(c2p_pos, query_layer, key_layer):
     return c2p_pos.expand([query_layer.size(0), query_layer.size(1), key_layer.size(-2), key_layer.size(-2)])
 
 
 @torch.jit.script
+# Copied from transformers.models.deberta.modeling_deberta.pos_dynamic_expand
 def pos_dynamic_expand(pos_index, p2c_att, key_layer):
     return pos_index.expand(p2c_att.size()[:2] + (pos_index.size(-2), key_layer.size(-2)))
 
@@ -853,6 +854,7 @@ class DisentangledSelfAttention(torch.nn.Module):
             del state_dict[prefix + "pos_q_proj.bias"]
 
 
+# Copied from transformers.models.deberta.modeling_deberta.DebertaEmbeddings with DebertaLayerNorm->LayerNorm
 class DebertaV2Embeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
@@ -928,6 +930,7 @@ class DebertaV2Embeddings(nn.Module):
         return embeddings
 
 
+# Copied from transformers.models.deberta.modeling_deberta.DebertaPreTrainedModel with Deberta->DebertaV2
 class DebertaV2PreTrainedModel(PreTrainedModel):
     """
     An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
@@ -1015,6 +1018,7 @@ DEBERTA_INPUTS_DOCSTRING = r"""
     "The bare DeBERTa Model transformer outputting raw hidden-states without any specific head on top.",
     DEBERTA_START_DOCSTRING,
 )
+# Copied from transformers.models.deberta.modeling_deberta.DebertaModel with Deberta->DebertaV2 with Deberta->DebertaV2
 class DebertaV2Model(DebertaV2PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
@@ -1126,6 +1130,7 @@ class DebertaV2Model(DebertaV2PreTrainedModel):
 
 
 @add_start_docstrings("""DeBERTa Model with a `language modeling` head on top. """, DEBERTA_START_DOCSTRING)
+# Copied from transformers.models.deberta.modeling_deberta.DebertaForMaskedLM with Deberta->DebertaV2
 class DebertaV2ForMaskedLM(DebertaV2PreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
@@ -1261,6 +1266,7 @@ class DebertaV2OnlyMLMHead(nn.Module):
     """,
     DEBERTA_START_DOCSTRING,
 )
+# Copied from transformers.models.deberta.modeling_deberta.DebertaForSequenceClassification with Deberta->DebertaV2
 class DebertaV2ForSequenceClassification(DebertaV2PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
@@ -1367,6 +1373,7 @@ class DebertaV2ForSequenceClassification(DebertaV2PreTrainedModel):
     """,
     DEBERTA_START_DOCSTRING,
 )
+# Copied from transformers.models.deberta.modeling_deberta.DebertaForTokenClassification with Deberta->DebertaV2
 class DebertaV2ForTokenClassification(DebertaV2PreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
@@ -1456,6 +1463,7 @@ class DebertaV2ForTokenClassification(DebertaV2PreTrainedModel):
     """,
     DEBERTA_START_DOCSTRING,
 )
+# Copied from transformers.models.deberta.modeling_deberta.DebertaForQuestionAnswering with Deberta->DebertaV2
 class DebertaV2ForQuestionAnswering(DebertaV2PreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
