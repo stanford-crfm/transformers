@@ -122,7 +122,7 @@ def load_tf_weights_in_gpt2(model, config, gpt2_checkpoint_path):
 
 
 class Attention(nn.Module):
-    def __init__(self, nx, n_ctx, config, scale=False, is_cross_attention=False):
+    def __init__(self, nx, n_ctx, layer_num, config, scale=False, is_cross_attention=False):
         super().__init__()
 
         n_state = nx  # in Attention: n_state=768 (nx=n_embd)
@@ -135,6 +135,8 @@ class Attention(nn.Module):
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
+        self.layer_scale = config.attn_layer_scale
+        self.layer_num = layer_num
         self.is_cross_attention = is_cross_attention
         if self.is_cross_attention:
             self.c_attn = Conv1D(2 * n_state, nx)
@@ -166,7 +168,11 @@ class Attention(nn.Module):
     def _attn(self, q, k, v, attention_mask=None, head_mask=None, output_attentions=False):
         w = torch.matmul(q, k)
         if self.scale:
-            w = w / (float(v.size(-1)) ** 0.5)
+            if self.layer_scale:
+                scale_factor = 1 / ((float(v.size(-1)) ** 0.5) * self.layer_num)
+            else:
+                scale_factor = 1 / (float(v.size(-1)) ** 0.5)
+            w *= scale_factor
         nd, ns = w.size(-2), w.size(-1)
 
         if not self.is_cross_attention:
@@ -263,15 +269,15 @@ class MLP(nn.Module):
 
 
 class Block(nn.Module):
-    def __init__(self, n_ctx, config, scale=False):
+    def __init__(self, n_ctx, layer_num, config, scale=False):
         super().__init__()
         hidden_size = config.n_embd
         inner_dim = config.n_inner if config.n_inner is not None else 4 * hidden_size
         self.ln_1 = nn.LayerNorm(hidden_size, eps=config.layer_norm_epsilon)
-        self.attn = Attention(hidden_size, n_ctx, config, scale)
+        self.attn = Attention(hidden_size, n_ctx, layer_num, config, scale)
         self.ln_2 = nn.LayerNorm(hidden_size, eps=config.layer_norm_epsilon)
         if config.add_cross_attention:
-            self.crossattention = Attention(hidden_size, n_ctx, config, scale, is_cross_attention=True)
+            self.crossattention = Attention(hidden_size, n_ctx, layer_num, config, scale, is_cross_attention=True)
             self.ln_cross_attn = nn.LayerNorm(hidden_size, eps=config.layer_norm_epsilon)
         self.mlp = MLP(inner_dim, config)
 
@@ -537,7 +543,7 @@ class GPT2Model(GPT2PreTrainedModel):
         self.wte = nn.Embedding(config.vocab_size, config.n_embd)
         self.wpe = nn.Embedding(config.n_positions, config.n_embd)
         self.drop = nn.Dropout(config.embd_pdrop)
-        self.h = nn.ModuleList([Block(config.n_ctx, config, scale=True) for _ in range(config.n_layer)])
+        self.h = nn.ModuleList([Block(config.n_ctx, (i+1), config, scale=True) for i in range(config.n_layer)])
         self.ln_f = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
 
         self.init_weights()

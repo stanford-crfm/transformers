@@ -61,6 +61,8 @@ class GPT2Config(PretrainedConfig):
             Dimensionality of the inner feed-forward layers. :obj:`None` will set it to 4 times n_embd
         activation_function (:obj:`str`, `optional`, defaults to :obj:`"gelu"`):
             Activation function, to be selected in the list :obj:`["relu", "silu", "gelu", "tanh", "gelu_new"]`.
+        attn_layer_scale (:obj:`bool`, `optional`, default to :obj:`False`):
+            Argument used to turn on the attention scale by 1 / layer_num for each block
         resid_pdrop (:obj:`float`, `optional`, defaults to 0.1):
             The dropout probability for all fully connected layers in the embeddings, encoder, and pooler.
         embd_pdrop (:obj:`int`, `optional`, defaults to 0.1):
@@ -134,6 +136,7 @@ class GPT2Config(PretrainedConfig):
         n_head=12,
         n_inner=None,
         activation_function="gelu_new",
+        attn_layer_scale=False,
         resid_pdrop=0.1,
         embd_pdrop=0.1,
         attn_pdrop=0.1,
@@ -160,6 +163,7 @@ class GPT2Config(PretrainedConfig):
         self.n_head = n_head
         self.n_inner = n_inner
         self.activation_function = activation_function
+        self.attn_layer_scale = attn_layer_scale
         self.resid_pdrop = resid_pdrop
         self.embd_pdrop = embd_pdrop
         self.attn_pdrop = attn_pdrop
