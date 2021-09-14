@@ -170,7 +170,7 @@ class Attention(nn.Module):
             # Get QKV Dimensions
             bsz, num_heads, seq_len, dk = q.size()
 
-            # @MISTRAL =>> Scale by SQRT(head_dim) * layer_number -- taken from Megatron LM!
+            # MISTRAL =>> Scale by SQRT(head_dim) * layer_number -- taken from Megatron LM!
             scale_factor = 1 / ((float(v.size(-1)) ** 0.5) * self.layer_num)
 
             if self.reorder_attn:
