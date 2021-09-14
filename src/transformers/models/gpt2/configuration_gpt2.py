@@ -62,7 +62,7 @@ class GPT2Config(PretrainedConfig):
         activation_function (:obj:`str`, `optional`, defaults to :obj:`"gelu"`):
             Activation function, to be selected in the list :obj:`["relu", "silu", "gelu", "tanh", "gelu_new"]`.
         attn_layer_scale (:obj:`bool`, `optional`, default to :obj:`False`):
-            Argument used to turn on the attention scale by 1 / layer_num for each block
+            Argument used to turn on the attention scale by 1 / layer_num for each block. Required for MistralGPT2.
         resid_pdrop (:obj:`float`, `optional`, defaults to 0.1):
             The dropout probability for all fully connected layers in the embeddings, encoder, and pooler.
         embd_pdrop (:obj:`int`, `optional`, defaults to 0.1):
