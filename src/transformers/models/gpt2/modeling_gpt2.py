@@ -122,7 +122,7 @@ def load_tf_weights_in_gpt2(model, config, gpt2_checkpoint_path):
 
 
 class Attention(nn.Module):
-    def __init__(self, nx, n_ctx, layer_num, config, scale=False, is_cross_attention=False, reorder_attn=True, upcast_attn=True):
+    def __init__(self, nx, n_ctx, layer_num, config, scale=False, is_cross_attention=False):
         super().__init__()
 
         n_state = nx  # in Attention: n_state=768 (nx=n_embd)
@@ -135,6 +135,8 @@ class Attention(nn.Module):
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
+        self.reorder_attn = config.reorder_attn
+        self.upcast_attn = config.upcast_attn
         self.layer_num = layer_num
         self.is_cross_attention = is_cross_attention
         if self.is_cross_attention:

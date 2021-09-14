@@ -67,6 +67,10 @@ class GPT2Config(PretrainedConfig):
             The dropout ratio for the embeddings.
         attn_pdrop (:obj:`float`, `optional`, defaults to 0.1):
             The dropout ratio for the attention.
+        reorder_attn (:obj:`bool`, `optional`, defaults to :obj:`False`):
+            Argument to determine whether or not to reorder attention
+        upscale_attn (:obj:`bool`, `optional`, defaults to :obj:`False`):
+            Argument to determine whether or not to upcast attention to fp32
         layer_norm_epsilon (:obj:`float`, `optional`, defaults to 1e-5):
             The epsilon to use in the layer normalization layers
         initializer_range (:obj:`float`, `optional`, defaults to 0.02):
@@ -137,6 +141,8 @@ class GPT2Config(PretrainedConfig):
         resid_pdrop=0.1,
         embd_pdrop=0.1,
         attn_pdrop=0.1,
+        reorder_attn=False,
+        upscale_attn=False,
         layer_norm_epsilon=1e-5,
         initializer_range=0.02,
         summary_type="cls_index",
